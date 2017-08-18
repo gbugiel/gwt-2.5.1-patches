@@ -210,7 +210,7 @@ class DOMImplStandardBase extends DOMImplStandard {
   public int getAbsoluteLeft(Element elem) {
     ClientRect rect = getBoundingClientRect(elem);
     double left = rect != null ? rect.getSubPixelLeft()
-        + elem.getOwnerDocument().getBody().getScrollLeft()
+        + getScrollLeft(elem.getOwnerDocument())
         : getAbsoluteLeftUsingOffsets(elem);
     return toInt32(left);
   }
@@ -219,16 +219,9 @@ class DOMImplStandardBase extends DOMImplStandard {
   public int getAbsoluteTop(Element elem) {
     ClientRect rect = getBoundingClientRect(elem);
     double top = rect != null ? rect.getSubPixelTop()
-        + elem.getOwnerDocument().getBody().getScrollTop()
+        + getScrollTop(elem.getOwnerDocument())
         : getAbsoluteTopUsingOffsets(elem);
     return toInt32(top);
-  }
-
-  @Override
-  public int getScrollLeft(Document doc) {
-    // Safari always applies document scrolling to the body element, even in
-    // strict mode.
-    return doc.getBody().getScrollLeft();
   }
 
   @Override
@@ -241,13 +234,6 @@ class DOMImplStandardBase extends DOMImplStandard {
   }
 
   @Override
-  public int getScrollTop(Document doc) {
-    // Safari always applies document scrolling to the body element, even in
-    // strict mode.
-    return doc.getBody().getScrollTop();
-  }
-
-  @Override
   public native int getTabIndex(Element elem) /*-{ 
     // tabIndex is undefined for divs and other non-focusable elements prior to
     // Safari 4.
@@ -255,25 +241,11 @@ class DOMImplStandardBase extends DOMImplStandard {
   }-*/;
 
   @Override
-  public void setScrollLeft(Document doc, int left) {
-    // Safari always applies document scrolling to the body element, even in
-    // strict mode.
-    doc.getBody().setScrollLeft(left);
-  }
-
-  @Override
   public void setScrollLeft(Element elem, int left) {
     if (!elem.hasTagName(BodyElement.TAG) && isRTL(elem)) {
       left += elem.getScrollWidth() - elem.getClientWidth();
     }
     super.setScrollLeft(elem, left);
-  }
-
-  @Override
-  public void setScrollTop(Document doc, int top) {
-    // Safari always applies document scrolling to the body element, even in
-    // strict mode.
-    doc.getBody().setScrollTop(top);
   }
 
   protected native boolean isRTL(Element elem) /*-{
